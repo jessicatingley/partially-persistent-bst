@@ -52,7 +52,7 @@ The project consists of four main files:
 
 1. Clone this repository:
     ```
-    git clone <repository-url>
+    git clone <[repository-url](https://github.com/jessicatingley/partially-persistent-bst.git)>
     ```
 2. Run the `main.ast` file using your preferred functional programming environment.
 3. Interact with the terminal interface to:
