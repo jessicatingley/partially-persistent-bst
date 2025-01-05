@@ -1,0 +1,90 @@
+load system io.
+
+
+structure BSTNode with
+    data value.
+    data left_child.
+    data right_child.
+end
+
+
+function insert
+    with (none, value) do
+        BSTNode(value, none, none).
+    with (BSTNode(node_value, left_child, right_child), value) if node_value > value do
+        BSTNode(node_value, insert(left_child, value), right_child).
+    with (BSTNode(node_value, left_child, right_child), value) if node_value < value do
+        BSTNode(node_value, left_child, insert(right_child, value)).
+end
+
+
+function contains
+    with (none, _) do
+        false.
+    with (BSTNode(node_value, left_child, right_child), value) if node_value == value do
+        true.
+    with (BSTNode(node_value, left_child, right_child), value) if node_value > value do
+        contains(left_child, value).
+    with (BSTNode(node_value, left_child, right_child), value) if node_value < value do
+        contains(right_child, value).
+end
+
+
+function find_min
+    with BSTNode(node_value, left_child, right_child) if (left_child is none) do
+        node_value.
+    with BSTNode(node_value, left_child, right_child) do
+        find_min(left_child).
+end
+
+
+function delete
+    with (none, value) do
+        none.
+    with (BSTNode(node_value, left_child, right_child), value) if node_value > value do
+        BSTNode(node_value, delete(left_child, value), right_child).
+    with (BSTNode(node_value, left_child, right_child), value) if node_value < value do
+        BSTNode(node_value, left_child, delete(right_child, value)).
+    with (BSTNode(node_value, left_child, right_child), value) if (right_child is none) do
+        left_child.
+    with (BSTNode(node_value, left_child, right_child), value) if (left_child is none) do
+        right_child.
+    with (BSTNode(node_value, left_child, right_child), value) do
+        let succ_value = find_min(right_child).
+        BSTNode(succ_value, left_child, delete(right_child, succ_value)).
+end
+
+
+structure PartiallyPersistentSet with
+    data roots.
+
+    function __init__
+        with none do
+            let this @roots = [none].
+    end
+
+    function insert
+        with value do
+            let root = this @roots @(this @roots @length() - 1).
+            let new_root = BSTNode(value, none, none) if (root is none) else insert(root, value).
+            this @roots @append new_root.
+    end
+
+    function contains
+        with (value, version) if (version <= this @roots @length() - 1) do
+            contains(this @roots @version, value).
+        with (value, version) do
+            io @println("Iteration " + tostring(version) + " does not exist. Please try searching for " + tostring(value) + " in an existing version.").
+    end
+
+    function delete
+        with value if (contains((this @roots @(this @roots @length() - 1)), value)) do
+            let root = this @roots @(this @roots @length() - 1).
+            -- io @println("In delete wrapper, calling delete with " + tostring(value)).
+            let new_root = delete(root, value).
+            this @roots @append new_root.
+            -- io @println(this@roots@length() - 1).
+        with value do
+            io @println(tostring(value) + " is not contained.").
+    end
+end

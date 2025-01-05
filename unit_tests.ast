@@ -1,0 +1,123 @@
+load system io.
+load partially_persistent_bst.
+let PartiallyPersistentSet = partially_persistent_bst @PartiallyPersistentSet.
+function test_insert
+        with none do
+            let tree = PartiallyPersistentSet().
+            tree@insert(10).
+            assert(tree@contains(10, 1) == true).
+
+            tree@insert(5).
+            assert(tree@contains(10, 2) == true).
+            assert(tree@contains(5, 2) == true).
+
+            tree@insert(15).
+            assert(tree@contains(10, 3) == true).
+            assert(tree@contains(15, 3) == true).
+            assert(tree@contains(5, 3) == true).
+
+            tree@insert(3).
+            assert(tree@contains(10, 4) == true).
+            assert(tree@contains(5, 4) == true).
+            assert(tree@contains(15, 4) == true).
+            assert(tree@contains(3, 4) == true).
+
+            tree@insert(7).
+            assert(tree@contains(10, 5) == true).
+            assert(tree@contains(5, 5) == true).
+            assert(tree@contains(15, 5) == true).
+            assert(tree@contains(3, 5) == true).
+            assert(tree@contains(7, 5) == true).
+
+            tree@insert(12).
+            assert(tree@contains(10, 6) == true).
+            assert(tree@contains(5, 6) == true).
+            assert(tree@contains(15, 6) == true).
+            assert(tree@contains(3, 6) == true).
+            assert(tree@contains(7, 6) == true).
+            assert(tree@contains(12, 6) == true).
+
+            tree@insert(18).
+            assert(tree@contains(10, 7) == true).
+            assert(tree@contains(5, 7) == true).
+            assert(tree@contains(15, 7) == true).
+            assert(tree@contains(3, 7) == true).
+            assert(tree@contains(7, 7) == true).
+            assert(tree@contains(12, 7) == true).
+            assert(tree@contains(18, 7) == true).
+
+            tree@insert(-10).
+            assert(tree@contains(10, 8) == true).
+            assert(tree@contains(5, 8) == true).
+            assert(tree@contains(15, 8) == true).
+            assert(tree@contains(3, 8) == true).
+            assert(tree@contains(7, 8) == true).
+            assert(tree@contains(12, 8) == true).
+            assert(tree@contains(18, 8) == true).
+            assert(tree@contains(-10, 8) == true).
+end
+
+function test_delete_leaf_node
+    with none do
+        let tree = PartiallyPersistentSet().
+        tree@insert(10).
+        tree@insert(5).
+        tree@insert(15).
+
+        tree@delete(5).
+        assert(tree@contains(10, 4) == true).
+        assert(tree@contains(5, 4) == false).
+        assert(tree@contains(15, 4) == true).
+end
+
+function test_delete_root_node
+    with none do
+        let tree = PartiallyPersistentSet().
+        tree@insert(20).
+        tree@insert(10).
+        tree@insert(30).
+
+        tree@delete(20).
+        assert(tree@contains(20, 4) == false).
+        assert(tree@contains(10, 4) == true).
+        assert(tree@contains(30, 4) == true).
+end
+
+function test_delete_node_with_one_child
+    with none do
+        let tree = PartiallyPersistentSet().
+        tree@insert(10).
+        tree@insert(5).
+        tree@insert(7).
+
+        tree@delete(5).
+        assert(tree@contains(10, 4) == true).
+        assert(tree@contains(5, 4) == false).
+        assert(tree@contains(7, 4) == true).
+end
+
+function test_delete_node_with_two_children
+    with none do
+        let tree = PartiallyPersistentSet().
+        tree@insert(10).
+        tree@insert(5).
+        tree@insert(15).
+        tree@insert(2).
+        tree@insert(7).
+
+        tree@delete(5).
+        assert(tree@contains(10, 6) == true).
+        assert(tree@contains(5, 6) == false).
+        assert(tree@contains(15, 6) == true).
+        assert(tree@contains(2, 6) == true).
+        assert(tree@contains(7, 6) == true).
+end
+
+function test_all
+    with none do
+        test_insert().
+        test_delete_leaf_node().
+        test_delete_root_node().
+        test_delete_node_with_one_child().
+        test_delete_node_with_two_children().
+end

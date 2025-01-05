@@ -1,0 +1,51 @@
+load unit_tests.
+load partially_persistent_bst.
+load system io.
+
+unit_tests @test_all().
+let members = partially_persistent_bst @PartiallyPersistentSet().
+
+function input_delete_members
+    with ([], input) do
+        none.
+    with ([h|t], input) if input == "e" do
+        members@insert(h).
+        input_delete_members(t, input).
+    with ([h|t], input) if input == "d" do
+        members@delete(h).
+        input_delete_members(t, input).
+end
+
+function process_input
+    with input if input == "Q" do
+        io @println("Exiting...").
+    with input if input == "E" do
+        let new_members = io @input("Enter member name or list of member names (comma separated): ").
+        input_delete_members(new_members@split ", ", "e").
+        get_user_input().
+    with input if input == "D" do
+        let delete_members = io @input("Enter member name or list of member names to be deleted (comma separated): ").
+        input_delete_members(delete_members@split ", ", "d").
+        get_user_input().
+    with input if input == "S" do
+        let contains_members = io @input("Enter name of member followed by the member list iteration which you would like to search (comma separated): ")@split ", ".
+        io @println(tostring(contains_members@0) + " is in the database at version " + tostring(contains_members@1) + ": " + tostring(members @contains(contains_members@0, tointeger(contains_members@1)))).
+        get_user_input().
+    with _ do
+        let input = io @println("Invalid input! Try again.").
+        get_user_input().
+end
+
+function get_user_input
+    with none do
+        let input = io @input("\nEnter 'E' to enter member names, 'D' to delete member names, 'S' to search for member names, or 'Q' to quit: ").
+        process_input(input).
+end
+
+io @println("Welcome to the Gym's Member Database.\n").
+io @println("Enter 'E' to enter member names, 'D' to delete member names, 'S' to search for member names, or 'Q' to quit.\n").
+io @println("Note that each time you enter or remove a member, a new iteration of the member list will be created. With the first insertion, the iteration will be one.
+Keep this in mind when searching for members.\n").
+io @println("Also note that failing to follow specified input format can result in the system crashing.\n").
+let initial = io @input("Enter a command to begin: ").
+process_input(initial).
